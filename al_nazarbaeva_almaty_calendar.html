@@ -323,157 +323,166 @@
   <button class="continue-button" id="continueBtn">Выбрать специалиста</button>
 
   <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    document.body.classList.add("page-loaded");
+window.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add("page-loaded");
 
+  let tg = null;
+  let currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+
+  // Проверка: доступен ли Telegram WebApp
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
-    const tg = Telegram.WebApp;
-    const currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+    tg = Telegram.WebApp;
 
     if (!currentBooking.telegram_user_id && tg.initDataUnsafe?.user?.id) {
       currentBooking.telegram_user_id = tg.initDataUnsafe.user.id;
       localStorage.setItem('currentBooking', JSON.stringify(currentBooking));
     }
+  }
 
-    const bookings = JSON.parse(localStorage.getItem("bookingData") || "{}");
-    const specialists = ["Специалист 1", "Специалист 2"];
-    let selectedDate = null;
-    let selectedTime = null;
-    let currentDate = new Date();
+  const bookings = JSON.parse(localStorage.getItem("bookingData") || "{}");
+  const specialists = ["Специалист 1", "Специалист 2"];
+  let selectedDate = null;
+  let selectedTime = null;
+  let currentDate = new Date();
 
-    const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  const monthNames = [
+    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+  ];
 
-    function isTimeFullyBooked(date, time) {
-      return specialists.every(specialist => {
-        const specialistBookings = bookings[specialist] || {};
-        const dateBookings = specialistBookings[date] || [];
-        return dateBookings.includes(time);
-      });
-    }
+  function isTimeFullyBooked(date, time) {
+    return specialists.every(specialist => {
+      const specialistBookings = bookings[specialist] || {};
+      const dateBookings = specialistBookings[date] || [];
+      return dateBookings.includes(time);
+    });
+  }
 
-    function getAllTimeSlots(start = 9, end = 22, interval = 60) {
-      const times = [];
-      for (let h = start; h < end; h++) {
-        for (let m = 0; m < 60; m += interval) {
-          times.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-        }
-      }
-      return times;
-    }
-
-    function initCalendar() {
-      const daysGrid = document.getElementById('daysGrid');
-      daysGrid.innerHTML = '';
-
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-
-      document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const daysInMonth = lastDay.getDate();
-      const firstDayOfWeek = firstDay.getDay();
-      const startDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
-
-      for (let i = 0; i < startDay; i++) {
-        const prevMonthDay = new Date(year, month, 0).getDate() - startDay + i + 1;
-        const dayElement = document.createElement('div');
-        dayElement.className = 'day other-month';
-        dayElement.textContent = prevMonthDay;
-        daysGrid.appendChild(dayElement);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'day';
-        dayElement.textContent = day;
-
-        const today = new Date();
-        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-          dayElement.classList.add('today');
-        }
-
-        dayElement.addEventListener('click', () => {
-          document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
-          dayElement.classList.add('selected');
-          selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          selectedTime = null;
-          renderTimeSlots();
-        });
-
-        daysGrid.appendChild(dayElement);
-      }
-
-      const totalCells = Math.ceil((daysInMonth + startDay) / 7) * 7;
-      const remainingCells = totalCells - (daysInMonth + startDay);
-      for (let i = 1; i <= remainingCells; i++) {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'day other-month';
-        dayElement.textContent = i;
-        daysGrid.appendChild(dayElement);
+  function getAllTimeSlots(start = 9, end = 22, interval = 60) {
+    const times = [];
+    for (let h = start; h < end; h++) {
+      for (let m = 0; m < 60; m += interval) {
+        times.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
       }
     }
+    return times;
+  }
 
-    function renderTimeSlots() {
-      const container = document.getElementById("timeGrid");
-      const wrapper = document.getElementById("timeContainer");
-      const button = document.getElementById("continueBtn");
+  function initCalendar() {
+    const daysGrid = document.getElementById('daysGrid');
+    daysGrid.innerHTML = '';
 
-      container.innerHTML = "";
-      button.style.display = "none";
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
-      if (!selectedDate) {
-        wrapper.style.display = "none";
-        return;
+    document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const firstDayOfWeek = firstDay.getDay();
+    const startDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+
+    for (let i = 0; i < startDay; i++) {
+      const prevMonthDay = new Date(year, month, 0).getDate() - startDay + i + 1;
+      const dayElement = document.createElement('div');
+      dayElement.className = 'day other-month';
+      dayElement.textContent = prevMonthDay;
+      daysGrid.appendChild(dayElement);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'day';
+      dayElement.textContent = day;
+
+      const today = new Date();
+      if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+        dayElement.classList.add('today');
       }
 
-      const allTimes = getAllTimeSlots();
-      const availableTimes = allTimes.filter(time => !isTimeFullyBooked(selectedDate, time));
-
-      if (availableTimes.length === 0) {
-        wrapper.style.display = "none";
-        return;
-      }
-
-      availableTimes.forEach(time => {
-        const div = document.createElement("div");
-        div.className = "time-slot";
-        div.textContent = time;
-        div.onclick = () => {
-          document.querySelectorAll(".time-slot").forEach(el => el.classList.remove("selected"));
-          div.classList.add("selected");
-          selectedTime = time;
-          button.style.display = "block";
-        };
-        container.appendChild(div);
+      dayElement.addEventListener('click', () => {
+        document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+        dayElement.classList.add('selected');
+        selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        selectedTime = null;
+        renderTimeSlots();
       });
 
-      wrapper.style.display = "block";
+      daysGrid.appendChild(dayElement);
     }
 
-    document.getElementById("prevMonth").onclick = () => {
-      currentDate.setMonth(currentDate.getMonth() - 1);
-      initCalendar();
-    };
+    const totalCells = Math.ceil((daysInMonth + startDay) / 7) * 7;
+    const remainingCells = totalCells - (daysInMonth + startDay);
+    for (let i = 1; i <= remainingCells; i++) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'day other-month';
+      dayElement.textContent = i;
+      daysGrid.appendChild(dayElement);
+    }
+  }
 
-    document.getElementById("nextMonth").onclick = () => {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-      initCalendar();
-    };
+  function renderTimeSlots() {
+    const container = document.getElementById("timeGrid");
+    const wrapper = document.getElementById("timeContainer");
+    const button = document.getElementById("continueBtn");
 
-    document.getElementById("continueBtn").onclick = () => {
-      if (!selectedDate || !selectedTime) return;
+    container.innerHTML = "";
+    button.style.display = "none";
 
-      currentBooking.date = selectedDate;
-      currentBooking.time = selectedTime;
-      localStorage.setItem('currentBooking', JSON.stringify(currentBooking));
+    if (!selectedDate) {
+      wrapper.style.display = "none";
+      return;
+    }
 
-      window.location.href = 'al_nazarbaeva_almaty_select_masters.html';
-    };
+    const allTimes = getAllTimeSlots();
+    const availableTimes = allTimes.filter(time => !isTimeFullyBooked(selectedDate, time));
 
+    if (availableTimes.length === 0) {
+      wrapper.style.display = "none";
+      return;
+    }
+
+    availableTimes.forEach(time => {
+      const div = document.createElement("div");
+      div.className = "time-slot";
+      div.textContent = time;
+      div.onclick = () => {
+        document.querySelectorAll(".time-slot").forEach(el => el.classList.remove("selected"));
+        div.classList.add("selected");
+        selectedTime = time;
+        button.style.display = "block";
+      };
+      container.appendChild(div);
+    });
+
+    wrapper.style.display = "block";
+  }
+
+  document.getElementById("prevMonth").onclick = () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
     initCalendar();
-  });
+  };
+
+  document.getElementById("nextMonth").onclick = () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    initCalendar();
+  };
+
+  document.getElementById("continueBtn").onclick = () => {
+    if (!selectedDate || !selectedTime) return;
+
+    currentBooking.date = selectedDate;
+    currentBooking.time = selectedTime;
+    localStorage.setItem('currentBooking', JSON.stringify(currentBooking));
+
+    window.location.href = 'al_nazarbaeva_almaty_select_masters.html';
+  };
+
+  initCalendar();
+});
 </script>
+
 
 </body>
 </html>
