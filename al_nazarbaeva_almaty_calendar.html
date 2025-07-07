@@ -242,9 +242,7 @@
       margin-top: 16px;
     }
 
-    .continue-button:hover {
-      border: 1px solid darkred;
-    }
+
 
     @media (max-width: 480px) {
       .header-container {
@@ -329,7 +327,6 @@ window.addEventListener('DOMContentLoaded', () => {
   let tg = null;
   let currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
 
-  // Проверка: доступен ли Telegram WebApp
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
     tg = Telegram.WebApp;
@@ -376,6 +373,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -393,21 +393,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dayElement = document.createElement('div');
+      const date = new Date(year, month, day);
       dayElement.className = 'day';
       dayElement.textContent = day;
 
-      const today = new Date();
-      if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+      if (date.toDateString() === today.toDateString()) {
         dayElement.classList.add('today');
       }
 
-      dayElement.addEventListener('click', () => {
-        document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
-        dayElement.classList.add('selected');
-        selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        selectedTime = null;
-        renderTimeSlots();
-      });
+      if (date < today) {
+        dayElement.style.opacity = '0.3';
+        dayElement.style.pointerEvents = 'none';
+      } else {
+        dayElement.addEventListener('click', () => {
+          document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+          dayElement.classList.add('selected');
+          selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          selectedTime = null;
+          renderTimeSlots();
+        });
+      }
 
       daysGrid.appendChild(dayElement);
     }
@@ -460,8 +465,17 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById("prevMonth").onclick = () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    initCalendar();
+    const today = new Date();
+    const tempDate = new Date(currentDate);
+    tempDate.setMonth(tempDate.getMonth() - 1);
+
+    if (
+      tempDate.getFullYear() > today.getFullYear() ||
+      (tempDate.getFullYear() === today.getFullYear() && tempDate.getMonth() >= today.getMonth())
+    ) {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      initCalendar();
+    }
   };
 
   document.getElementById("nextMonth").onclick = () => {
@@ -482,6 +496,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initCalendar();
 });
 </script>
+
 
 
 </body>
