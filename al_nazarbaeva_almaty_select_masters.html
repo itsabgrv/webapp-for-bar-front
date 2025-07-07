@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор специалиста</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      background-color: #f5f5f5;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin: 20px 0;
+      color: #333;
+      text-align: center;
+    }
+
+    .master-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .master-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .master-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .master-info {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .master-name {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .master-specialty {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .select-button {
+      background: none;
+      border: 1px solid black;
+      color: black;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .select-button:hover {
+      background-color: black;
+      color: white;
+    }
+
+    .no-masters {
+      color: #666;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .selected-date {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+    .header-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: black;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .branch-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-grow: 1;
+            background: #f5f5f5;
+
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+
+            text-decoration: none;
+            color: inherit;
+            min-height: 60px;
+        }
+
+        .branch-info-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .branch-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+            display: flex;
+            color: white;
+          background-image: url("images/llogo.jpg");
+        }
+
+        .branch-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .branch-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .branch-address {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #666;
+            margin-left: 10px;
+        }
+                .back-button:hover {
+            background-color: #e0e0e0;
+        }
+         .master-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  </style>
+</head>
+<body>
+    <div class="header-container">
+  <button class="back-button" onclick="history.back()">←</button>
+  <a href="almaty_filial.html" class="branch-button">
+    <div class="branch-info-container">
+      <div class="branch-logo"></div>
+      <div class="branch-text">
+        <div class="branch-name">BROS & BLADES АL</div>
+        <div class="branch-address">пр. Назарбаева, 55</div>
+      </div>
+    </div>
+    <span class="arrow-down"></span>
+  </a>
+</div>
+
+<h2 style="margin-top: 0;">Выберите специалиста</h2>
+
+
+
+  <div class="selected-date" id="selectedDateTime"></div>
+
+  <div id="mastersContainer"></div>
+
+  <script>
+  // Telegram WebApp init
+  Telegram.WebApp.ready();
+
+  // Получаем текущее бронирование
+  const currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+
+  // Отображаем выбранную дату и время
+  if (currentBooking.date && currentBooking.time) {
+    const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = new Date(currentBooking.date).toLocaleDateString('ru-RU', dateOptions);
+    document.getElementById('selectedDateTime').textContent =
+      `Выбрано: ${formattedDate} в ${currentBooking.time}`;
+  }
+
+  const masters = [
+    {
+      id: 1,
+      firstName: "Александр",
+      lastName: "Петров",
+      specialty: "Барбер",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+    },
+    {
+      id: 2,
+      firstName: "Дмитрий",
+      lastName: "Иванов",
+      specialty: "Стилист",
+      avatar: "https://randomuser.me/api/portraits/men/44.jpg"
+    }
+  ];
+
+  const bookings = JSON.parse(localStorage.getItem("bookingData") || "{}");
+  const mastersContainer = document.getElementById("mastersContainer");
+
+  masters.forEach(master => {
+    const masterName = `${master.firstName} ${master.lastName}`;
+    const specialistBookings = bookings[masterName] || {};
+    const busyTimes = specialistBookings[currentBooking.date] || [];
+
+    const isAvailable = !busyTimes.includes(currentBooking.time);
+
+    if (isAvailable) {
+      const card = document.createElement("div");
+      card.className = "master-card";
+
+      const avatar = document.createElement("div");
+      avatar.className = "master-avatar";
+      avatar.innerHTML = `<img src="${master.avatar}" alt="${master.firstName}">`;
+
+      const info = document.createElement("div");
+      info.className = "master-info";
+      info.innerHTML = `
+        <div class="master-name">${master.firstName} ${master.lastName}</div>
+        <div class="master-specialty">${master.specialty}</div>
+      `;
+
+      const btn = document.createElement("button");
+      btn.className = "select-button";
+      btn.innerText = "Выбрать";
+      btn.onclick = () => {
+        currentBooking.specialist = masterName;
+        currentBooking.specialistId = master.id;
+
+        localStorage.setItem("currentBooking", JSON.stringify(currentBooking));
+        window.location.href = "al_nazarbaeva_almaty_service_one.html";
+      };
+
+      card.appendChild(avatar);
+      card.appendChild(info);
+      card.appendChild(btn);
+      mastersContainer.appendChild(card);
+    }
+  });
+
+  if (mastersContainer.children.length === 0) {
+    const noMasters = document.createElement("p");
+    noMasters.className = "no-masters";
+    noMasters.innerText = "На это время нет доступных специалистов.";
+    mastersContainer.appendChild(noMasters);
+
+    const backButton = document.createElement("button");
+    backButton.className = "select-button";
+    backButton.style.marginTop = "20px";
+    backButton.style.width = "100%";
+    backButton.innerText = "Выбрать другое время";
+    backButton.onclick = () => {
+      window.history.back();
+    };
+    mastersContainer.appendChild(backButton);
+  }
+</script>
+
+</body>
+</html>

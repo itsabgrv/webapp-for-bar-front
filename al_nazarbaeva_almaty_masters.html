@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выбрать специалиста</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      background-color: #f5f5f5;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #333;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin: 20px 0;
+      color: #333;
+      text-align: center;
+    }
+
+    .specialist-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .specialist-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .specialist-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .specialist-info {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .specialist-name {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .specialist-specialty {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .selection-indicator {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #666;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .selection-indicator.selected {
+      border-color: black;
+      background-color: black;
+    }
+
+    .selection-indicator.selected::after {
+      content: "";
+      display: block;
+      width: 10px;
+      height: 10px;
+      background-color: white;
+      border-radius: 50%;
+    }
+
+    .continue-button {
+      width: 100%;
+      padding: 12px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .continue-button:hover {
+      background-color: black;
+    }
+
+    .continue-button.show {
+      display: block;
+    }
+    .header-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: black;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .branch-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-grow: 1;
+            background: #f5f5f5;
+
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+
+            text-decoration: none;
+            color: inherit;
+            min-height: 60px;
+        }
+
+        .branch-info-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .branch-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+            display: flex;
+            color: white;
+          background-image: url("images/llogo.jpg");
+        }
+
+        .branch-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .branch-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .branch-address {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #666;
+            margin-left: 10px;
+        }
+                .back-button:hover {
+            background-color: #e0e0e0;
+        }
+                .specialist-card {
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.specialist-card:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+.selection-indicator {
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.selection-indicator.selected {
+  transform: scale(1.1);
+}
+
+  </style>
+</head>
+<body>
+  <div class="header-container">
+        <button class="back-button" onclick="history.back()">←</button>
+        <a href="almaty_filial.html" class="branch-button">
+            <div class="branch-info-container">
+                <div class="branch-logo"></div>
+                <div class="branch-text">
+                    <div class="branch-name">BROS & BLADES АL</div>
+                    <div class="branch-address">пр. Назарбаева, 55</div>
+                </div>
+            </div>
+            <span class="arrow-down"></span>
+        </a>
+  </div>
+  <h2>Выберите специалиста</h2>
+
+  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 1')">
+    <div class="specialist-avatar">
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Специалист 1">
+    </div>
+    <div class="specialist-info">
+      <div class="specialist-name">Александр Петров</div>
+      <div class="specialist-specialty">Барбер</div>
+    </div>
+    <div class="selection-indicator"></div>
+  </div>
+
+  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 2')">
+    <div class="specialist-avatar">
+      <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Специалист 2">
+    </div>
+    <div class="specialist-info">
+      <div class="specialist-name">Дмитрий Иванов</div>
+      <div class="specialist-specialty">Барбер</div>
+    </div>
+    <div class="selection-indicator"></div>
+  </div>
+
+  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 3')">
+    <div class="specialist-avatar">
+      <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Специалист 3">
+    </div>
+    <div class="specialist-info">
+      <div class="specialist-name">Екатерина Смирнова</div>
+      <div class="specialist-specialty">Барбер</div>
+    </div>
+    <div class="selection-indicator"></div>
+  </div>
+
+  <button id="continueButton" class="continue-button">Выбрать дату и время</button>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  let selectedSpecialist = null;
+  let bookingData = {};
+
+  document.addEventListener('DOMContentLoaded', function () {
+    Telegram.WebApp.ready();
+
+    // 1. Получаем текущие данные из localStorage
+    bookingData = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+
+    // 2. Получаем telegram_user_id из URL, если есть, и сохраняем
+    const urlParams = new URLSearchParams(window.location.search);
+    const telegramUserId = urlParams.get("user_id");
+
+    if (telegramUserId && !bookingData.telegramUserId) {
+      bookingData.telegramUserId = telegramUserId;
+      localStorage.setItem('currentBooking', JSON.stringify(bookingData));
+    }
+  });
+
+  function selectSpecialist(card, name) {
+    // Снимаем выделение со всех
+    document.querySelectorAll('.selection-indicator').forEach(el => el.classList.remove('selected'));
+    card.querySelector('.selection-indicator').classList.add('selected');
+
+    selectedSpecialist = name;
+
+    document.getElementById('continueButton').classList.add('show');
+  }
+
+  document.getElementById('continueButton').addEventListener('click', function () {
+    if (!selectedSpecialist) return;
+
+    // Сохраняем специалиста в currentBooking
+    bookingData.specialist = selectedSpecialist;
+    localStorage.setItem('currentBooking', JSON.stringify(bookingData));
+
+    // Переход к календарю
+    window.location.href = 'al_calendar_masters_nazarbaeva.html';
+  });
+</script>
+
+</body>
+</html>

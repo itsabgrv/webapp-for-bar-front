@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подтверждение записи</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      background-color: #f5f5f5;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      background-color: black;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-decoration: none;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .back-button:hover {
+      background-color: #333;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .branch-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-grow: 1;
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      min-height: 60px;
+    }
+
+    .branch-info-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .branch-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #e74c3c;
+      display: flex;
+      color: white;
+      background-image: url("images/llogo.jpg");
+    }
+
+    .branch-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .branch-name {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .branch-address {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .arrow-down {
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid #666;
+      margin-left: 10px;
+    }
+
+    h2 {
+      margin: 20px 0;
+      color: #333;
+    }
+
+    /* Specialist card styles */
+    .specialist-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .specialist-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .specialist-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .specialist-info {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .specialist-name {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .specialist-specialty {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Appointment details styles */
+    .appointment-details {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .calendar-icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 24px;
+      color: #e74c3c;
+    }
+
+    .appointment-info {
+      flex-grow: 1;
+    }
+
+    .appointment-date {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .appointment-time {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Services styles */
+    .services-container {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .service-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .service-name {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .service-price {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .total-price {
+      font-weight: bold;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* User info styles */
+    .user-info-container {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .form-group label span {
+      color: #e74c3c;
+    }
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* Final total and button */
+    .final-total {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 16px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-button:hover {
+      background-color: #333;
+    }
+    @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.specialist-card,
+.appointment-details,
+.services-container,
+.user-info-container,
+.final-total,
+.submit-button {
+  animation: fadeInUp 0.4s ease both;
+}
+
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="history.back()">←</button>
+
+  <div class="header-container">
+    <a href="almaty_filial.html" class="branch-button">
+      <div class="branch-info-container">
+        <div class="branch-logo"></div>
+        <div class="branch-text">
+          <div class="branch-name">BROS & BLADES АL</div>
+          <div class="branch-address">пр. Назарбаева, 55</div>
+        </div>
+      </div>
+      <span class="arrow-down"></span>
+    </a>
+  </div>
+
+  <h2>Детали записи</h2>
+
+  <!-- Specialist Card -->
+  <div class="specialist-card" id="specialistCard">
+    <div class="specialist-avatar">
+      <img id="specialistAvatar" src="" alt="Фото специалиста">
+    </div>
+    <div class="specialist-info">
+      <div class="specialist-name" id="specialistName">Имя специалиста</div>
+      <div class="specialist-specialty" id="specialistSpecialty">Специальность</div>
+    </div>
+  </div>
+
+  <!-- Appointment Details -->
+  <div class="appointment-details">
+    <div class="calendar-icon">📅</div>
+    <div class="appointment-info">
+      <div class="appointment-date" id="appointmentDate">Дата</div>
+      <div class="appointment-time" id="appointmentTime">Время</div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="services-container">
+    <h3>Услуги</h3>
+    <div id="servicesList"></div>
+    <div class="total-price">
+      <span>Итого:</span>
+      <span id="servicesTotal">0 ₸</span>
+    </div>
+  </div>
+
+  <!-- User Info -->
+  <div class="user-info-container">
+    <h3>Ваши данные</h3>
+    <div class="form-group">
+      <label for="userName">Имя <span>*</span></label>
+      <input type="text" id="userName" placeholder="Введите имя" required>
+    </div>
+    <div class="form-group">
+      <label for="userPhone">Телефоннн <span>*</span></label>
+      <input type="tel" id="userPhone" placeholder="Номер телефона с кодом страны" required>
+    </div>
+    <div class="form-group">
+      <label for="userEmail">E-mail</label>
+      <input type="email" id="userEmail" placeholder="Введите e-mail">
+    </div>
+    <div class="form-group">
+      <label for="userComment">Комментарий</label>
+      <textarea id="userComment" placeholder="Комментарий к записи"></textarea>
+    </div>
+  </div>
+
+  <div class="final-total">
+    <span>Итого:</span>
+    <span id="finalTotal">0 ₸</span>
+  </div>
+
+  <button class="submit-button" id="submitBtn">Записаться</button>
+
+<script>
+  let bookingData = {};
+
+  document.addEventListener('DOMContentLoaded', function () {
+    Telegram.WebApp.ready();
+
+    bookingData = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+
+    // Получение telegram_user_id
+    let telegramUserId = new URLSearchParams(window.location.search).get("user_id");
+
+    if (!telegramUserId && Telegram.WebApp.initDataUnsafe?.user) {
+      telegramUserId = Telegram.WebApp.initDataUnsafe.user.id;
+    }
+
+    if (!telegramUserId && bookingData.telegramUserId) {
+      telegramUserId = bookingData.telegramUserId;
+    }
+
+    bookingData.telegramUserId = telegramUserId || "";
+    localStorage.setItem('currentBooking', JSON.stringify(bookingData));
+
+    // Заполнение карточки специалиста
+    if (bookingData.specialist) {
+      document.getElementById('specialistName').textContent = bookingData.specialist;
+
+      let avatarUrl = 'https://randomuser.me/api/portraits/lego/1.jpg';
+      if (bookingData.specialist.includes('Александр Петров')) {
+        avatarUrl = 'https://randomuser.me/api/portraits/men/32.jpg';
+      } else if (bookingData.specialist.includes('Дмитрий Иванов')) {
+        avatarUrl = 'https://randomuser.me/api/portraits/men/44.jpg';
+      } else if (bookingData.specialist.includes('Екатерина Смирнова')) {
+        avatarUrl = 'https://randomuser.me/api/portraits/women/65.jpg';
+      }
+      document.getElementById('specialistAvatar').src = avatarUrl;
+
+      let specialty = 'Специалист';
+      if (bookingData.specialist.includes('Александр Петров')) {
+        specialty = 'Барбер';
+      } else if (bookingData.specialist.includes('Дмитрий Иванов')) {
+        specialty = 'Стилист';
+      } else if (bookingData.specialist.includes('Екатерина Смирнова')) {
+        specialty = 'Мастер ногтевого сервиса';
+      }
+      document.getElementById('specialistSpecialty').textContent = specialty;
+    }
+
+    // Дата и время
+    if (bookingData.date && bookingData.time) {
+      const date = new Date(bookingData.date);
+      const day = date.toLocaleDateString('ru-RU', { weekday: 'long' });
+      const shortDate = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const formattedDate = `${day.charAt(0).toUpperCase() + day.slice(1)} ${shortDate}`;
+      document.getElementById('appointmentDate').textContent = formattedDate;
+      document.getElementById('appointmentTime').textContent = bookingData.time;
+    }
+
+    // Услуги и цена
+    const servicesList = document.getElementById('servicesList');
+    let total = 0;
+    if (bookingData.services && bookingData.services.length > 0) {
+      servicesList.innerHTML = '';
+      bookingData.services.forEach(service => {
+        const item = document.createElement('div');
+        item.className = 'service-item';
+        item.innerHTML = `
+          <span class="service-name">${service.title}</span>
+          <span class="service-price">${service.price.toLocaleString()} ₸</span>
+        `;
+        servicesList.appendChild(item);
+        total += service.price;
+      });
+    }
+    document.getElementById('servicesTotal').textContent = `${total.toLocaleString()} ₸`;
+    document.getElementById('finalTotal').textContent = `${total.toLocaleString()} ₸`;
+  });
+
+  document.getElementById('submitBtn').addEventListener('click', async function () {
+    const userName = document.getElementById('userName').value.trim();
+    const userPhone = document.getElementById('userPhone').value.trim();
+
+    if (!userName || !userPhone) {
+      Telegram.WebApp.showAlert('Пожалуйста, заполните обязательные поля: Имя и Телефон');
+      return;
+    }
+
+    const data = {
+      date: bookingData.date,
+      time: bookingData.time,
+      specialist: bookingData.specialist,
+      services: bookingData.services,
+      name: userName,
+      phone: userPhone,
+      email: document.getElementById('userEmail').value.trim(),
+      comment: document.getElementById('userComment').value.trim(),
+      branch: bookingData.branch,
+      user_id: bookingData.telegramUserId || ""
+    };
+
+    try {
+      // Отправка в Supabase
+      const supa = await fetch("https://okepiftwlqymibftguid.supabase.co/rest/v1/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
+          "Authorization": "Bearer sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!supa.ok) throw new Error("Ошибка при отправке в Supabase");
+
+      // Отправка в Render (бот)
+      const notify = await fetch("https://barber-server-yuhr.onrender.com/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (!notify.ok) throw new Error("Ошибка при отправке уведомления");
+
+      Telegram.WebApp.showAlert("✅ Запись успешно создана!");
+      Telegram.WebApp.close();
+
+    } catch (error) {
+      console.error("❌ Ошибка:", error);
+      Telegram.WebApp.showAlert("Ошибка при записи. Попробуйте позже.");
+    }
+  });
+</script>
+
+
+
+</body>
+</html>
