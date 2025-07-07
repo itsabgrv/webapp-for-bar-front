@@ -323,6 +323,9 @@
   <button class="continue-button" id="continueBtn">Выбрать специалиста</button>
 
   <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add("page-loaded");
+
     Telegram.WebApp.ready();
     const tg = Telegram.WebApp;
     const currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
@@ -469,11 +472,8 @@
     };
 
     initCalendar();
+  });
+</script>
 
-    window.addEventListener('DOMContentLoaded', () => {
-      document.body.style.opacity = '1';
-      document.body.style.transform = 'translateY(0)';
-    });
-  </script>
 </body>
 </html>
