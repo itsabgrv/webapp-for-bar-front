@@ -243,38 +243,39 @@
   </div>
   <h2>Выберите специалиста</h2>
 
-  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 1')">
-    <div class="specialist-avatar">
-      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Специалист 1">
-    </div>
-    <div class="specialist-info">
-      <div class="specialist-name">Александр Петров</div>
-      <div class="specialist-specialty">Барбер</div>
-    </div>
-    <div class="selection-indicator"></div>
+  <div class="specialist-card" onclick="selectSpecialist(this, 'Александр Петров', 'Барбер', 'https://randomuser.me/api/portraits/men/32.jpg')">
+  <div class="specialist-avatar">
+    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Александр Петров">
   </div>
+  <div class="specialist-info">
+    <div class="specialist-name">Александр Петров</div>
+    <div class="specialist-specialty">Барбер</div>
+  </div>
+  <div class="selection-indicator"></div>
+</div>
 
-  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 2')">
-    <div class="specialist-avatar">
-      <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Специалист 2">
-    </div>
-    <div class="specialist-info">
-      <div class="specialist-name">Дмитрий Иванов</div>
-      <div class="specialist-specialty">Барбер</div>
-    </div>
-    <div class="selection-indicator"></div>
+<div class="specialist-card" onclick="selectSpecialist(this, 'Дмитрий Иванов', 'Барбер', 'https://randomuser.me/api/portraits/men/44.jpg')">
+  <div class="specialist-avatar">
+    <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Дмитрий Иванов">
   </div>
+  <div class="specialist-info">
+    <div class="specialist-name">Дмитрий Иванов</div>
+    <div class="specialist-specialty">Барбер</div>
+  </div>
+  <div class="selection-indicator"></div>
+</div>
 
-  <div class="specialist-card" onclick="selectSpecialist(this, 'Специалист 3')">
-    <div class="specialist-avatar">
-      <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Специалист 3">
-    </div>
-    <div class="specialist-info">
-      <div class="specialist-name">Екатерина Смирнова</div>
-      <div class="specialist-specialty">Барбер</div>
-    </div>
-    <div class="selection-indicator"></div>
+<div class="specialist-card" onclick="selectSpecialist(this, 'Екатерина Смирнова', 'Барбер', 'https://randomuser.me/api/portraits/women/65.jpg')">
+  <div class="specialist-avatar">
+    <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Екатерина Смирнова">
   </div>
+  <div class="specialist-info">
+    <div class="specialist-name">Екатерина Смирнова</div>
+    <div class="specialist-specialty">Барбер</div>
+  </div>
+  <div class="selection-indicator"></div>
+</div>
+
 
   <button id="continueButton" class="continue-button">Выбрать дату и время</button>
 
@@ -286,25 +287,20 @@
   document.addEventListener('DOMContentLoaded', function () {
     Telegram.WebApp.ready();
 
-    // 1. Получаем текущие данные из localStorage
     bookingData = JSON.parse(localStorage.getItem('currentBooking') || '{}');
 
-    // 2. Получаем telegram_user_id из URL, если есть, и сохраняем
-    const urlParams = new URLSearchParams(window.location.search);
-    const telegramUserId = urlParams.get("user_id");
-
-    if (telegramUserId && !bookingData.telegramUserId) {
-      bookingData.telegramUserId = telegramUserId;
+    const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+    if (tgUser?.id && !bookingData.telegram_user_id) {
+      bookingData.telegram_user_id = tgUser.id;
       localStorage.setItem('currentBooking', JSON.stringify(bookingData));
     }
   });
 
-  function selectSpecialist(card, name) {
-    // Снимаем выделение со всех
+  function selectSpecialist(card, name, position, avatar) {
     document.querySelectorAll('.selection-indicator').forEach(el => el.classList.remove('selected'));
     card.querySelector('.selection-indicator').classList.add('selected');
 
-    selectedSpecialist = name;
+    selectedSpecialist = { name, position, avatar };
 
     document.getElementById('continueButton').classList.add('show');
   }
@@ -312,11 +308,11 @@
   document.getElementById('continueButton').addEventListener('click', function () {
     if (!selectedSpecialist) return;
 
-    // Сохраняем специалиста в currentBooking
-    bookingData.specialist = selectedSpecialist;
+    bookingData.specialist = selectedSpecialist.name;
+    bookingData.specialistData = selectedSpecialist;
+
     localStorage.setItem('currentBooking', JSON.stringify(bookingData));
 
-    // Переход к календарю
     window.location.href = 'al_calendar_masters_nazarbaeva.html';
   });
 </script>

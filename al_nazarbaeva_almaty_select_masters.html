@@ -227,97 +227,101 @@
   <div id="mastersContainer"></div>
 
   <script>
-  // Telegram WebApp init
+let tg = null;
+if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
   Telegram.WebApp.ready();
+  tg = Telegram.WebApp;
+}
 
-  // Получаем текущее бронирование
-  const currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
+// Получаем текущее бронирование
+const currentBooking = JSON.parse(localStorage.getItem('currentBooking') || '{}');
 
-  // Отображаем выбранную дату и время
-  if (currentBooking.date && currentBooking.time) {
-    const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    const formattedDate = new Date(currentBooking.date).toLocaleDateString('ru-RU', dateOptions);
-    document.getElementById('selectedDateTime').textContent =
-      `Выбрано: ${formattedDate} в ${currentBooking.time}`;
+// Отображаем выбранную дату и время
+if (currentBooking.date && currentBooking.time) {
+  const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = new Date(currentBooking.date).toLocaleDateString('ru-RU', dateOptions);
+  document.getElementById('selectedDateTime').textContent =
+    `Выбрано: ${formattedDate} в ${currentBooking.time}`;
+}
+
+const masters = [
+  {
+    id: 1,
+    firstName: "Александр",
+    lastName: "Петров",
+    specialty: "Барбер",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+  },
+  {
+    id: 2,
+    firstName: "Дмитрий",
+    lastName: "Иванов",
+    specialty: "Стилист",
+    avatar: "https://randomuser.me/api/portraits/men/44.jpg"
   }
+];
 
-  const masters = [
-    {
-      id: 1,
-      firstName: "Александр",
-      lastName: "Петров",
-      specialty: "Барбер",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg"
-    },
-    {
-      id: 2,
-      firstName: "Дмитрий",
-      lastName: "Иванов",
-      specialty: "Стилист",
-      avatar: "https://randomuser.me/api/portraits/men/44.jpg"
-    }
-  ];
+const bookings = JSON.parse(localStorage.getItem("bookingData") || "{}");
+const mastersContainer = document.getElementById("mastersContainer");
 
-  const bookings = JSON.parse(localStorage.getItem("bookingData") || "{}");
-  const mastersContainer = document.getElementById("mastersContainer");
+masters.forEach(master => {
+  const masterName = `${master.firstName} ${master.lastName}`;
+  const specialistBookings = bookings[masterName] || {};
+  const busyTimes = specialistBookings[currentBooking.date] || [];
 
-  masters.forEach(master => {
-    const masterName = `${master.firstName} ${master.lastName}`;
-    const specialistBookings = bookings[masterName] || {};
-    const busyTimes = specialistBookings[currentBooking.date] || [];
+  const isAvailable = !busyTimes.includes(currentBooking.time);
 
-    const isAvailable = !busyTimes.includes(currentBooking.time);
+  if (isAvailable) {
+    const card = document.createElement("div");
+    card.className = "master-card";
 
-    if (isAvailable) {
-      const card = document.createElement("div");
-      card.className = "master-card";
+    const avatar = document.createElement("div");
+    avatar.className = "master-avatar";
+    avatar.innerHTML = `<img src="${master.avatar}" alt="${master.firstName}">`;
 
-      const avatar = document.createElement("div");
-      avatar.className = "master-avatar";
-      avatar.innerHTML = `<img src="${master.avatar}" alt="${master.firstName}">`;
+    const info = document.createElement("div");
+    info.className = "master-info";
+    info.innerHTML = `
+      <div class="master-name">${master.firstName} ${master.lastName}</div>
+      <div class="master-specialty">${master.specialty}</div>
+    `;
 
-      const info = document.createElement("div");
-      info.className = "master-info";
-      info.innerHTML = `
-        <div class="master-name">${master.firstName} ${master.lastName}</div>
-        <div class="master-specialty">${master.specialty}</div>
-      `;
+    const btn = document.createElement("button");
+    btn.className = "select-button";
+    btn.innerText = "Выбрать";
+    btn.onclick = () => {
+      currentBooking.specialist = masterName;
+      currentBooking.specialistId = master.id;
 
-      const btn = document.createElement("button");
-      btn.className = "select-button";
-      btn.innerText = "Выбрать";
-      btn.onclick = () => {
-        currentBooking.specialist = masterName;
-        currentBooking.specialistId = master.id;
-
-        localStorage.setItem("currentBooking", JSON.stringify(currentBooking));
-        window.location.href = "al_nazarbaeva_almaty_service_one.html";
-      };
-
-      card.appendChild(avatar);
-      card.appendChild(info);
-      card.appendChild(btn);
-      mastersContainer.appendChild(card);
-    }
-  });
-
-  if (mastersContainer.children.length === 0) {
-    const noMasters = document.createElement("p");
-    noMasters.className = "no-masters";
-    noMasters.innerText = "На это время нет доступных специалистов.";
-    mastersContainer.appendChild(noMasters);
-
-    const backButton = document.createElement("button");
-    backButton.className = "select-button";
-    backButton.style.marginTop = "20px";
-    backButton.style.width = "100%";
-    backButton.innerText = "Выбрать другое время";
-    backButton.onclick = () => {
-      window.history.back();
+      localStorage.setItem("currentBooking", JSON.stringify(currentBooking));
+      window.location.href = "al_nazarbaeva_almaty_service_one.html";
     };
-    mastersContainer.appendChild(backButton);
+
+    card.appendChild(avatar);
+    card.appendChild(info);
+    card.appendChild(btn);
+    mastersContainer.appendChild(card);
   }
+});
+
+if (mastersContainer.children.length === 0) {
+  const noMasters = document.createElement("p");
+  noMasters.className = "no-masters";
+  noMasters.innerText = "На это время нет доступных специалистов.";
+  mastersContainer.appendChild(noMasters);
+
+  const backButton = document.createElement("button");
+  backButton.className = "select-button";
+  backButton.style.marginTop = "20px";
+  backButton.style.width = "100%";
+  backButton.innerText = "Выбрать другое время";
+  backButton.onclick = () => {
+    window.history.back();
+  };
+  mastersContainer.appendChild(backButton);
+}
 </script>
+
 
 </body>
 </html>
