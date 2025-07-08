@@ -466,59 +466,74 @@
   });
 
   document.getElementById('submitBtn').addEventListener('click', async function () {
-    const userName = document.getElementById('userName').value.trim();
-    const userPhone = document.getElementById('userPhone').value.trim();
+  const userName = document.getElementById('userName').value.trim();
+  const userPhone = document.getElementById('userPhone').value.trim();
+  const userEmail = document.getElementById('userEmail').value.trim();
+  const userComment = document.getElementById('userComment').value.trim();
 
-    if (!userName || !userPhone) {
-      Telegram.WebApp.showAlert('Пожалуйста, заполните обязательные поля: Имя и Телефон');
-      return;
+  if (!userName || !userPhone) {
+    Telegram.WebApp.showAlert('Пожалуйста, заполните обязательные поля: Имя и Телефон');
+    return;
+  }
+
+  const data = {
+    date: bookingData.date,
+    time: bookingData.time,
+    specialist: bookingData.specialist,
+    services: bookingData.services,
+    name: userName,
+    phone: userPhone,
+    email: userEmail,
+    comment: userComment,
+    branch: bookingData.branch,
+    user_id: bookingData.telegramUserId || ""
+  };
+
+  console.log("📤 Отправка данных:", data);
+
+  try {
+    // 1. Supabase
+    const supa = await fetch("https://okepiftwlqymibftguid.supabase.co/rest/v1/bookings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
+        "Authorization": "Bearer sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const supaRes = await supa.json();
+    console.log("✅ Ответ от Supabase:", supa.status, supaRes);
+
+    if (!supa.ok) {
+      throw new Error("Ошибка от Supabase: " + JSON.stringify(supaRes));
     }
 
-    const data = {
-      date: bookingData.date,
-      time: bookingData.time,
-      specialist: bookingData.specialist,
-      services: bookingData.services,
-      name: userName,
-      phone: userPhone,
-      email: document.getElementById('userEmail').value.trim(),
-      comment: document.getElementById('userComment').value.trim(),
-      branch: bookingData.branch,
-      user_id: bookingData.telegramUserId || ""
-    };
+    // 2. Уведомление боту через Render
+    const notify = await fetch("https://barber-server-yuhr.onrender.com/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
 
-    try {
-      // Отправка в Supabase
-      const supa = await fetch("https://okepiftwlqymibftguid.supabase.co/rest/v1/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": "sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
-          "Authorization": "Bearer sb_publishable_ZIgcmEm2N-K_okvealeGSA_TAy78lNy",
-          "Prefer": "return=representation"
-        },
-        body: JSON.stringify(data)
-      });
+    const notifyRes = await notify.json();
+    console.log("✅ Ответ от Render:", notify.status, notifyRes);
 
-      if (!supa.ok) throw new Error("Ошибка при отправке в Supabase");
-
-      // Отправка в Render (бот)
-      const notify = await fetch("https://barber-server-yuhr.onrender.com/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      if (!notify.ok) throw new Error("Ошибка при отправке уведомления");
-
-      Telegram.WebApp.showAlert("✅ Запись успешно создана!");
-      Telegram.WebApp.close();
-
-    } catch (error) {
-      console.error("❌ Ошибка:", error);
-      Telegram.WebApp.showAlert("Ошибка при записи. Попробуйте позже.");
+    if (!notify.ok) {
+      throw new Error("Ошибка от Render: " + JSON.stringify(notifyRes));
     }
-  });
+
+    Telegram.WebApp.showAlert("✅ Запись успешно создана!");
+    Telegram.WebApp.close();
+
+  } catch (error) {
+    console.error("❌ Ошибка при записи:", error);
+    Telegram.WebApp.showAlert("Ошибка при записи. Попробуйте позже.");
+  }
+});
+
 </script>
 
 
