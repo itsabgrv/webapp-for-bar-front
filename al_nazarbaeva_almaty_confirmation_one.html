@@ -529,9 +529,10 @@
     Telegram.WebApp.close();
 
   } catch (error) {
-    console.error("❌ Ошибка при записи:", error);
-    Telegram.WebApp.showAlert("Ошибка при записи. Попробуйте позже.");
+  const errorText = error?.message || error.toString();
+  Telegram.WebApp.showAlert("❌ Ошибка:\n" + errorText);
   }
+
 });
 
 </script>
