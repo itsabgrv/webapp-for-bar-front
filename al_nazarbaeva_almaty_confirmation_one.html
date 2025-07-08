@@ -512,18 +512,19 @@
     }
 
     // 2. Уведомление боту через Render
-<!--    const notify = await fetch("https://barber-server-yuhr.onrender.com/notify", {-->
-<!--      method: "POST",-->
-<!--      headers: { "Content-Type": "application/json" },-->
-<!--      body: JSON.stringify(data)-->
-<!--    });-->
+    const notifyText = await notify.text();
+let notifyRes;
+try {
+  notifyRes = JSON.parse(notifyText);
+} catch {
+  notifyRes = notifyText;
+}
+console.log("✅ Ответ от Render:", notify.status, notifyRes);
 
-<!--    const notifyRes = await notify.json();-->
-<!--    console.log("✅ Ответ от Render:", notify.status, notifyRes);-->
+if (!notify.ok) {
+  throw new Error("Ошибка от Render: " + notifyText);
+}
 
-<!--    if (!notify.ok) {-->
-<!--      throw new Error("Ошибка от Render: " + JSON.stringify(notifyRes));-->
-<!--    }-->
 
     Telegram.WebApp.showAlert("✅ Запись успешно создана!");
     Telegram.WebApp.close();
